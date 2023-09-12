@@ -1,13 +1,8 @@
 package com.example.lv5.service;
 
 import com.example.lv5.dto.*;
-import com.example.lv5.entity.Comment;
-import com.example.lv5.entity.Post;
-import com.example.lv5.entity.User;
-import com.example.lv5.entity.UserRoleEnum;
-import com.example.lv5.repository.CommentRepository;
-import com.example.lv5.repository.PostRepository;
-import com.example.lv5.repository.UserRepository;
+import com.example.lv5.entity.*;
+import com.example.lv5.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +20,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final PostLikeRepository postLikeRepository;
 
 
     // 게시글 작성
@@ -45,7 +41,7 @@ public class PostService {
 
     }
 
-    // 게시글 수정
+    // 게시글 조회
     public List<PostCommentResponseDto> getPosts() {
         List<Post> posts = postRepository.findAllByOrderByModifiedAtDesc();
         List<PostCommentResponseDto> postCommentResponseDtos = new ArrayList<>();
@@ -59,15 +55,16 @@ public class PostService {
                 commentResponseDtos.add(new CommentResponseDto(comment));
             }
 
-            PostCommentResponseDto postCommentResponseDto = new PostCommentResponseDto(post, commentResponseDtos);
+            Long likeCount = postLikeRepository.countByPostId(post.getId());
+            PostCommentResponseDto postCommentResponseDto = new PostCommentResponseDto(post, commentResponseDtos, likeCount);
             postCommentResponseDtos.add(postCommentResponseDto);
         }
+
 
         return postCommentResponseDtos;
     }
 
     // 선택한 게시글 조회
-    //
     public PostCommentResponseDto getPost(Long id) {
         Post post = postRepository.findPostById(id);
 
@@ -78,7 +75,8 @@ public class PostService {
             commentResponseDtos.add(new CommentResponseDto(comment));
         }
 
-        PostCommentResponseDto postCommentResponseDto = new PostCommentResponseDto(post, commentResponseDtos);
+        Long likeCount = postLikeRepository.countByPostId(post.getId());
+        PostCommentResponseDto postCommentResponseDto = new PostCommentResponseDto(post, commentResponseDtos, likeCount);
 
         return postCommentResponseDto;
     }
@@ -88,13 +86,14 @@ public class PostService {
     public ResponseDto updatePost(Long id, RequestDto requestDto) {
         User currentUser = getCurrentUser();
         Post post = findPost(id);
+        Long likeCount = postLikeRepository.countByPostId(post.getId());
 
         if (validateUserAuthority(post,currentUser)) {
             post.update(requestDto);
             return new ResponseDto(post);
         }
         else
-            return new ResponseDto("본인의 게시글만 수정 할 수 있습니다.", 400);
+            return new ResponseDto("본인의 게시글만 수정 할 수 있습니다.", 400, likeCount);
     }
 
     // 게시글 삭제

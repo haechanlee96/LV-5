@@ -29,6 +29,12 @@ public class Post extends Timestamped {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    private List<PostLike> postLikes = new ArrayList<>();
+
     public Post(RequestDto requestDto) {
         this.title = requestDto.getTitle();
         this.contents = requestDto.getContents();
@@ -45,6 +51,4 @@ public class Post extends Timestamped {
         user.getPosts().add(this);
     }
 
-    @OneToMany(mappedBy = "post", orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
 }

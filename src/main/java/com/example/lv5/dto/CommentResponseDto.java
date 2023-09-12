@@ -28,6 +28,9 @@ public class CommentResponseDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer statusCode;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long commentLike;
+
     public CommentResponseDto(Comment comment) {
         this.id = comment.getId();
         this.postId = comment.getPost().getId();
@@ -35,10 +38,17 @@ public class CommentResponseDto {
         this.username = comment.getUser().getUsername();
         this.createdAt = comment.getCreatedAt();
         this.modifiedAt = comment.getModifiedAt();
+        this.commentLike = (long) comment.getCommentLikes().size();
     }
 
     public CommentResponseDto(String msg, Integer statusCode) {
         this.msg = msg;
         this.statusCode = statusCode;
+    }
+
+    public CommentResponseDto(String msg, Integer statusCode, Long commentLike) {
+        this.msg = msg;
+        this.statusCode = statusCode;
+        this.commentLike = commentLike;
     }
 }

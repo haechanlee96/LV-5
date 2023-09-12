@@ -3,10 +3,8 @@ package com.example.lv5.service;
 import com.example.lv5.dto.CommentRequestDto;
 import com.example.lv5.dto.CommentResponseDto;
 import com.example.lv5.dto.StatusResponseDto;
-import com.example.lv5.entity.Comment;
-import com.example.lv5.entity.Post;
-import com.example.lv5.entity.User;
-import com.example.lv5.entity.UserRoleEnum;
+import com.example.lv5.entity.*;
+import com.example.lv5.repository.CommentLikeRepository;
 import com.example.lv5.repository.CommentRepository;
 import com.example.lv5.repository.PostRepository;
 import com.example.lv5.repository.UserRepository;
@@ -26,6 +24,8 @@ public class CommentService {
     private final UserRepository userRepository;
 
     private final PostRepository postRepository;
+
+    private final CommentLikeRepository commentLikeRepository;
 
 
 
@@ -52,13 +52,14 @@ public class CommentService {
     public CommentResponseDto updateComment(Long id, CommentRequestDto requestDto) {
         User currentUser = getCurrentUser();
         Comment comment = findComment(id);
+        Long commentLike = commentLikeRepository.countByCommentId(comment.getId());
 
         if (validateUserAuthority(comment, currentUser)) {
             comment.update(requestDto);
             return new CommentResponseDto(comment);
         }
         else {
-            return new CommentResponseDto("본인의 댓글만 수정 할 수 있습니다.", 400);
+            return new CommentResponseDto("본인의 댓글만 수정 할 수 있습니다.", 400,commentLike);
         }
     }
 

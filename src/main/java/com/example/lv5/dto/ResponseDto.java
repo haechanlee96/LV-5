@@ -26,6 +26,9 @@ public class ResponseDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer statusCode;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long count;
+
     public ResponseDto(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();
@@ -38,6 +41,12 @@ public class ResponseDto {
     public ResponseDto(String msg, Integer statusCode) {
         this.msg = msg;
         this.statusCode = statusCode;
+    }
+
+    public ResponseDto(String msg, Integer statusCode, Long count) {
+        this.msg = msg;
+        this.statusCode = statusCode;
+        this.count = count;
     }
 
 }
